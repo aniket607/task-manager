@@ -21,9 +21,9 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
-const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH = "w-64"
+const SIDEBAR_WIDTH_MOBILE = "w-72"
+const SIDEBAR_WIDTH_ICON = "w-12"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -133,15 +133,9 @@ const SidebarProvider = React.forwardRef<
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
           <div
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-                ...style,
-              } as React.CSSProperties
-            }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-svh w-full",
+              "has-[[data-variant=inset]]:bg-gray-50 dark:has-[[data-variant=inset]]:bg-gray-950",
               className
             )}
             ref={ref}
@@ -198,12 +192,10 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-              } as React.CSSProperties
-            }
+            className={cn(
+              SIDEBAR_WIDTH_MOBILE,
+              "bg-gray-50 dark:bg-gray-950 p-0 text-gray-900 dark:text-gray-50 [&>button]:hidden"
+            )}
             side={side}
           >
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
@@ -217,7 +209,7 @@ const Sidebar = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "group peer hidden text-sidebar-foreground md:block",
+          "group peer hidden text-gray-900 dark:text-gray-50 md:block",
           className
         )}
         data-state={state}
@@ -227,24 +219,24 @@ const Sidebar = React.forwardRef<
       >
         <div
           className={cn(
-            "relative h-svh w-[--sidebar-width] transition-[width] duration-200 ease-linear",
-            state === "collapsed" && "w-[--sidebar-width-icon]"
+            "relative h-svh transition-[width] duration-200 ease-linear",
+            state === "collapsed" ? SIDEBAR_WIDTH_ICON : SIDEBAR_WIDTH
           )}
         />
         <div
           className={cn(
-            "fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[width] duration-200 ease-linear md:flex",
+            "fixed inset-y-0 z-10 hidden h-svh transition-[width] duration-200 ease-linear md:flex",
             side === "left" ? "left-0" : "right-0",
-            state === "collapsed" && "w-[--sidebar-width-icon]",
-            variant === "floating" || variant === "inset" ? "p-2" : "border-r"
+            state === "collapsed" ? SIDEBAR_WIDTH_ICON : SIDEBAR_WIDTH,
+            variant === "floating" || variant === "inset" ? "p-2" : "border-r border-gray-200 dark:border-gray-800"
           )}
           {...props}
         >
           <div
             data-sidebar="sidebar"
             className={cn(
-              "flex h-full w-full flex-col bg-sidebar",
-              variant === "floating" && "rounded-lg border shadow"
+              "flex h-full w-full flex-col bg-gray-50 dark:bg-gray-950",
+              variant === "floating" && "rounded-lg border border-gray-200 dark:border-gray-800 shadow"
             )}
           >
             {children}

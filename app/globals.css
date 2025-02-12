@@ -1,21 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-    --radius: 0.5rem
+    --radius: 0.5rem;
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 0 0% 0% / 10;
     --foreground: 210 40% 98%;
   }
 }
 
 /* Apply the theme variables */
 body {
-  @apply bg-background text-foreground;
+  @apply bg-background text-foreground min-h-screen;
 }
-
