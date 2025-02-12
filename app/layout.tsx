@@ -42,11 +42,11 @@ export default async function RootLayout({
                 {/* Background elements */}
                 <div className="fixed bottom-0 left-0 right-0 flex justify-center z-[45] pointer-events-none">
                   <div
-                    className="h-32 w-[90%] overflow-x-hidden bg-[rgb(54,157,253)] bg-opacity-100 md:bg-opacity-70 blur-[337.4px]"
-                    style={{ transform: "rotate(-30deg)" }}
+                    className="h-32 w-[90%] bg-[rgb(54,157,253)] bg-opacity-80 md:bg-opacity-90 blur-[337.4px]"
+                    style={{ transform: "rotate(-40deg)" }}
                   />
                 </div>
-                <BackgroundPlus className="fixed bottom-0 left-0 w-full h-full -z-50 opacity-50" />
+                <BackgroundPlus className="fixed bottom-0 left-0 w-full h-full -z-50 opacity-70 md:opacity-50" />
               </div>
             </ThemeProvider>
           </CustomSessionProvider>
