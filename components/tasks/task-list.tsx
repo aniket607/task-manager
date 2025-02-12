@@ -7,13 +7,19 @@ import { TaskFilters } from "./task-filters"
 import { TaskDialog } from "./task-dialog"
 import { Button } from "../ui/button"
 import { PlusIcon } from "lucide-react"
+import { TaskListSkeleton } from "./task-skeleton"
 
-export function TaskList() {
+interface TaskListProps {
+  projectId?: number
+}
+
+export function TaskList({ projectId }: TaskListProps) {
   const { tasks, isLoading } = useTasks()
-  const { filter, setSelectedTask } = useTaskStore()
+  const { filter, setSelectedTask, openDialog } = useTaskStore()
 
-  // Filter tasks based on current filter
+  // Filter tasks based on current filter and projectId
   const filteredTasks = tasks?.filter(task => {
+    if (projectId && task.projectId !== projectId) return false
     if (filter.status && task.status !== filter.status) return false
     if (filter.priority && task.priority !== filter.priority) return false
     if (filter.search) {
@@ -24,23 +30,26 @@ export function TaskList() {
     return true
   })
 
-  if (isLoading) return <div>Loading tasks...</div>
+  if (isLoading) return <TaskListSkeleton />
+
+  const handleAddTask = () => {
+    setSelectedTask({})  // Set an empty task
+    openDialog()        // Open the dialog
+  }
 
   return (
-    <div className="space-y-4 p-6">
-      <div className="flex justify-between items-center">
+    <div className="w-full space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Tasks</h2>
-        <Button
-          onClick={() => setSelectedTask(null)}
-        >
-          <PlusIcon className="w-4 h-4 mr-2" />
+        <Button onClick={handleAddTask}>
+          <PlusIcon className="h-4 w-4 mr-2" />
           Add Task
         </Button>
       </div>
 
       <TaskFilters />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 min-w-0">
         {filteredTasks?.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}

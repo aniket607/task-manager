@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Task } from "@/lib/db/schema"
 import { useTaskStore } from "@/lib/store/useTaskStore"
 import { useTasks } from "@/lib/hooks/useTasks"
 import { Button } from "@/components/ui/button"
@@ -13,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -42,18 +42,14 @@ const taskSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["TODO", "IN_PROGRESS", "DONE"]),
   priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
-  dueDate: z.date({
-    required_error: "Due date is required",
-  }),
-  projectId: z.number({
-    required_error: "Project is required",
-  }),
+  dueDate: z.date(),
+  projectId: z.number(),
 })
 
 type TaskFormValues = z.infer<typeof taskSchema>
 
 export function TaskDialog() {
-  const { selectedTask, setSelectedTask } = useTaskStore()
+  const { selectedTask, isDialogOpen, closeDialog } = useTaskStore()
   const { createTask, updateTask } = useTasks()
 
   const form = useForm<TaskFormValues>({
@@ -71,11 +67,11 @@ export function TaskDialog() {
   useEffect(() => {
     if (selectedTask) {
       form.reset({
-        title: selectedTask.title,
+        title: selectedTask.title || "",
         description: selectedTask.description || "",
-        status: selectedTask.status as any,
-        priority: selectedTask.priority as any,
-        dueDate: selectedTask.dueDate ? new Date(selectedTask.dueDate) : undefined,
+        status: (selectedTask.status as "TODO" | "IN_PROGRESS" | "DONE") || "TODO",
+        priority: (selectedTask.priority as "HIGH" | "MEDIUM" | "LOW") || "MEDIUM",
+        dueDate: selectedTask.dueDate ? new Date(selectedTask.dueDate) : new Date(),
         projectId: selectedTask.projectId,
       })
     } else {
@@ -90,9 +86,8 @@ export function TaskDialog() {
     }
   }, [selectedTask, form])
 
-  // Function to handle dialog close
   const handleClose = () => {
-    setSelectedTask(null)
+    closeDialog()
     form.reset()
   }
 
@@ -103,11 +98,11 @@ export function TaskDialog() {
         description: data.description,
         status: data.status,
         priority: data.priority,
-        dueDate: data.dueDate ? data.dueDate.toISOString() : null,
+        dueDate: new Date(data.dueDate),
         projectId: data.projectId,
       };
 
-      if (selectedTask) {
+      if (selectedTask?.id) {
         await updateTask.mutateAsync({
           id: selectedTask.id,
           ...formData,
@@ -115,7 +110,7 @@ export function TaskDialog() {
       } else {
         await createTask.mutateAsync(formData);
       }
-      handleClose() // Close dialog after successful submission
+      handleClose()
     } catch (error) {
       console.error('Failed to save task:', error);
     }
@@ -123,13 +118,13 @@ export function TaskDialog() {
 
   return (
     <Dialog 
-      open={selectedTask !== null}
+      open={isDialogOpen}
       onOpenChange={(open) => !open && handleClose()}
     >
-      <DialogContent>
+      <DialogContent className="mx-auto max-w-sm rounded-lg">
         <DialogHeader>
           <DialogTitle>
-            {selectedTask ? "Edit Task" : "Create Task"}
+            {selectedTask?.id ? "Edit Task" : "Create Task"}
           </DialogTitle>
         </DialogHeader>
 
@@ -272,14 +267,16 @@ export function TaskDialog() {
             />
 
             <div className="flex justify-end gap-2">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleClose}
-                disabled={createTask.isPending || updateTask.isPending}
-              >
-                Cancel
-              </Button>
+              <DialogClose asChild>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleClose}
+                  disabled={createTask.isPending || updateTask.isPending}
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
               <Button 
                 type="submit"
                 disabled={createTask.isPending || updateTask.isPending}
@@ -287,7 +284,7 @@ export function TaskDialog() {
                 {(createTask.isPending || updateTask.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {selectedTask ? "Update" : "Create"}
+                {selectedTask?.id ? "Update" : "Create"}
               </Button>
             </div>
           </form>

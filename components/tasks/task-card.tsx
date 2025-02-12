@@ -12,21 +12,26 @@ interface TaskCardProps {
   task: Task
 }
 
-const priorityColors = {
-  HIGH: "bg-red-100 text-red-800",
-  MEDIUM: "bg-yellow-100 text-yellow-800",
-  LOW: "bg-green-100 text-green-800",
+const priorityColors: Record<string, string> = {
+  HIGH: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+  MEDIUM: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+  LOW: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
 }
 
-const statusColors = {
-  TODO: "bg-gray-100 text-gray-800",
-  IN_PROGRESS: "bg-blue-100 text-blue-800",
-  DONE: "bg-green-100 text-green-800",
+const statusColors: Record<string, string> = {
+  TODO: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+  IN_PROGRESS: "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
+  DONE: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { updateTask, deleteTask } = useTasks()
-  const setSelectedTask = useTaskStore((state) => state.setSelectedTask)
+  const { deleteTask } = useTasks()
+  const { setSelectedTask, openDialog } = useTaskStore()
+
+  const handleEdit = () => {
+    setSelectedTask(task)
+    openDialog()
+  }
 
   return (
     <Card>
@@ -37,9 +42,9 @@ export function TaskCard({ task }: TaskCardProps) {
             {task.priority}
           </Badge>
         </CardTitle>
-        {task.project && (
-          <Badge variant="outline" className="mt-2">
-            {task.project.name}
+        {task.projectId && (
+          <Badge variant="outline" className="mt-2 w-fit p-2">
+            Project {task.projectId}
           </Badge>
         )}
       </CardHeader>
@@ -55,7 +60,7 @@ export function TaskCard({ task }: TaskCardProps) {
         <Button 
           variant="outline" 
           size="sm"
-          onClick={() => setSelectedTask(task)}
+          onClick={handleEdit}
           disabled={deleteTask.isPending}
         >
           Edit
